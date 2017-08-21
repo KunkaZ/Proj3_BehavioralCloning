@@ -10,23 +10,19 @@ with open('../data/driving_log.csv') as csvfile:
 
 images = []
 measurements = []
-for line in lines[1:20]:
+for line in lines[1:-1]:
     # print(line)
     source_path = line[0]
     filename = source_path.split('/')[-1]  #extract file name
     current_path = '../data/IMG/' + filename  
-    print(current_path)
     image = cv2.imread(current_path)
-    print(image)
     images.append(image)
     measurement = float(line[3])
     measurements.append(measurement)
 
-print(image)
+
 X_train = np.array(images)  #convert to numpy arrays
 y_train = np.array(measurements)
-xx = X_train[1]
-print(X_train.shape)
 
 # #build a simply NN/ regression NN
 # import tensorflow
@@ -39,6 +35,6 @@ model.add(Dense(1))
 
 print('compile mode and run')
 model.compile(loss='mse',optimizer='adam')
-model.fit(X_train,y_train, validation_split=0.2,shuffle=True,epoch = 7)
+model.fit(X_train,y_train, validation_split=0.2,shuffle=True,nb_epoch = 10)
 
 model.save('model.h5')
