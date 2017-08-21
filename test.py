@@ -10,7 +10,7 @@ with open('../data/driving_log.csv') as csvfile:
 
 images = []
 measurements = []
-for line in lines[1:50]:
+for line in lines[1:-1]:
     # print(line)
     source_path = line[0]
     filename = source_path.split('/')[-1]  #extract file name
