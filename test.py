@@ -11,7 +11,7 @@ with open('../data/driving_log.csv') as csvfile:
 
 images = []
 measurements = []
-for line in lines[1:50]:
+for line in lines[1:-1]:
     for i in range(3):
         # print(line)
         source_path = line[i]
@@ -32,7 +32,7 @@ for line in lines[1:50]:
     speed =  float(line[6])
     measurement.extend([steering,steering_left,steering_right])
     measurements.extend(measurement)
-
+print(['image shape:',image.shape])
 print(['total images num:',len(images)])
 # print(len(measurements))
 
@@ -58,14 +58,14 @@ from keras.models import Sequential
 from keras.layers.core import Flatten, Dense, Lambda, Dropout, Activation
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D 
+from keras.layers import Cropping2D
+
 print('create model')
 
 model = Sequential()
 
-model.add(Lambda(lambda x: (x / 255.0 - 0.5), input_shape=(160,320,3)))
-
-# model.add(Convolution2D(nb_filter=16, nb_row=7, nb_col=7, \
-    # border_mode='valid', input_shape=(1, 31, 31), activation='tang'))
+model.add(Cropping2D(cropping=((50,20),(0,0)), input_shape=(160,320,3)))
+model.add(Lambda(lambda x: (x / 255.0 - 0.5)))
 
 # first set of CONV CONV => MaxPooling => Dropout
 model.add(Convolution2D(32, 32, 3, border_mode = "valid"))
@@ -96,7 +96,7 @@ model.add(Dense(1))
 # model.add(Dense(1))
 
 model.compile(loss='mse',optimizer='adam')
-model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =7)
+model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =4)
 
 model.save('model.h5')
 # """
