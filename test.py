@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import cv2
+from PIL import Image, ImageDraw
 lines = []
 with open('../data/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
@@ -10,29 +11,47 @@ with open('../data/driving_log.csv') as csvfile:
 
 images = []
 measurements = []
-for line in lines[1:1000]:
-    # print(line)
-    source_path = line[0]
-    filename = source_path.split('/')[-1]  #extract file name
-    current_path = '../data/IMG/' + filename  
-    image = cv2.imread(current_path)
-    images.append(image)
-    measurement = float(line[3])
-    measurements.append(measurement)
-# print(line)
+for line in lines[1:50]:
+    for i in range(3):
+        # print(line)
+        source_path = line[i]
+        filename = source_path.split('/')[-1]  #extract file name
+        current_path = '../data/IMG/' + filename  
+        image = cv2.imread(current_path)
+        images.append(image)
+        # print(current_path)
+
+    # measurements
+    measurement =[]
+    correction = 0.1
+    steering = float(line[3])
+    steering_left = steering + correction
+    steering_right = steering - correction 
+    throttle =  float(line[4])
+    brake =  float(line[5])
+    speed =  float(line[6])
+    measurement.extend([steering,steering_left,steering_right])
+    measurements.extend(measurement)
+
+print(['total images num:',len(images)])
+# print(len(measurements))
+
 
 augmented_images = []
 augmented_measurements = []
 # Flipping Images And Steering Measurements
-for images, measurement in zip(images, measurements):
+for image, measurement in zip(images, measurements):
     augmented_images.append(image)
     augmented_measurements.append(measurement)
     augmented_images.append(cv2.flip(image,1))
     augmented_measurements.append(measurement*-1.0)
 
+
+
 X_train = np.array(augmented_images)  #convert to numpy arrays
 y_train = np.array(augmented_measurements)
 
+print(['training image num:',len(augmented_measurements)])
 # #build a simply NN/ regression NN
 # import tensorflow
 from keras.models import Sequential
@@ -80,3 +99,4 @@ model.compile(loss='mse',optimizer='adam')
 model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =7)
 
 model.save('model.h5')
+# """
