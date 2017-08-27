@@ -11,7 +11,7 @@ with open('../data/driving_log.csv') as csvfile:
 print('loading data...')
 images = []
 measurements = []
-for line in lines[1:-1]:
+for line in lines[1:20]:
     for i in range(3):
         # print(line)
         source_path = line[i]
@@ -59,6 +59,7 @@ from keras.layers.core import Flatten, Dense, Lambda, Dropout, Activation
 from keras.layers.convolutional import Conv2D
 from keras.layers.pooling import MaxPooling2D 
 from keras.layers import Cropping2D
+import matplotlib.pyplot as plt
 
 print('----create model')
 
@@ -87,8 +88,19 @@ model.summary()
 
 print('----Start training')
 model.compile(loss='mse',optimizer='adam')
-model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =4)
+history_object = model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =4, verbose=1)
 
 model.save('model.h5')
 print('----model saved')
+
+print(history_object.history.keys())
+
+### plot the training and validation loss for each epoch
+plt.plot(history_object.history['loss'])
+plt.plot(history_object.history['val_loss'])
+plt.title('model mean squared error loss')
+plt.ylabel('mean squared error loss')
+plt.xlabel('epoch')
+plt.legend(['training set', 'validation set'], loc='upper right')
+plt.show()
 # """
