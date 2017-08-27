@@ -8,7 +8,7 @@ with open('../data/driving_log.csv') as csvfile:
     for line in reader:
         lines.append(line)
     # print(line)
-
+print('preprocess data...')
 images = []
 measurements = []
 for line in lines[1:-1]:
@@ -23,7 +23,7 @@ for line in lines[1:-1]:
 
     # measurements
     measurement =[]
-    correction = 0.1
+    correction = 0.2
     steering = float(line[3])
     steering_left = steering + correction
     steering_right = steering - correction 
@@ -68,25 +68,25 @@ model.add(Cropping2D(cropping=((50,20),(0,0)), input_shape=(160,320,3)))
 model.add(Lambda(lambda x: (x / 255.0 - 0.5)))
 
 # first set of CONV CONV => MaxPooling => Dropout
-model.add(Convolution2D(32, 32, 3, border_mode = "valid"))
+model.add(Convolution2D(6, 5, 5, border_mode = "valid"))
 # model.add(Convolution2D(32, 32, 3, input_shape=(160, 320, 3), border_mode = "valid"))
-model.add(MaxPooling2D((2,2)))
-model.add(Dropout(0.5))
+model.add(MaxPooling2D())
+#model.add(Dropout(0.5))
 model.add(Activation('relu'))
 
-model.add(Convolution2D(50, 10, 5,  border_mode = "valid",))
-model.add(MaxPooling2D((4,4)))
-model.add(Dropout(0.7))
+model.add(Convolution2D(6, 5, 5,  border_mode = "valid",))
+model.add(MaxPooling2D())
+#model.add(Dropout(0.7))
 model.add(Activation('relu'))
 
 model.add(Flatten())
 model.add(Dense(128))
-model.add(Dropout(0.5))
-model.add(Activation('relu'))
+#model.add(Dropout(0.5))
+#model.add(Activation('relu'))
 
 model.add(Dense(64))
-model.add(Dropout(0.5))
-model.add(Activation('relu'))
+#model.add(Dropout(0.5))
+#model.add(Activation('relu'))
 
 model.add(Dense(1))
 # model.add(Activation('softmax'))
