@@ -2,24 +2,20 @@ import csv
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw
-lines = []
-with open('../data/driving_log.csv') as csvfile:
-    reader = csv.reader(csvfile)
-    for line in reader:
-        lines.append(line)
+
+data_path =['../data/','../track1/','../bridge/']
+data_num_upper_index = 10  # -1 load all data;
+
+def load_image(line,path,images,measurements):
+    # print()
     # print(line)
-print('loading data...')
-images = []
-measurements = []
-for line in lines[1:20]:
     for i in range(3):
-        # print(line)
         source_path = line[i]
         filename = source_path.split('/')[-1]  #extract file name
-        current_path = '../data/IMG/' + filename  
+        current_path = path +'IMG/' + filename  
+        # print(current_path)
         image = cv2.imread(current_path)
         images.append(image)
-        # print(current_path)
 
     # measurements
     measurement =[]
@@ -32,10 +28,32 @@ for line in lines[1:20]:
     speed =  float(line[6])
     measurement.extend([steering,steering_left,steering_right])
     measurements.extend(measurement)
-print(['image shape:',image.shape])
-print(['total images num:',len(images)])
-# print(len(measurements))
 
+print()
+print('------------------------------------------load data-----------------------------------------------------------')
+lines = []
+images = []
+measurements = []
+
+# data_path =['../track1/']
+for path in data_path:
+    log_path = path+'driving_log.csv'
+    print('loading data from '+path)
+    lines = []
+    with open(log_path) as csvfile:
+        reader = csv.reader(csvfile)
+        for line in reader:
+            lines.append(line)
+        for line in lines[1:data_num_upper_index]:
+            load_image(line,path,images,measurements)
+
+
+print(['total images num:',len(images)])
+print(['measurements num:',len(measurements)])
+print(['image shape:',images[1].shape])
+
+    
+print('------------------------------------------Preprocess data-----------------------------------------------------------')
 
 augmented_images = []
 augmented_measurements = []
@@ -52,6 +70,9 @@ X_train = np.array(augmented_images)  #convert to numpy arrays
 y_train = np.array(augmented_measurements)
 
 print(['training image num:',len(augmented_measurements)])
+
+
+print('------------------------------------------Set up NN graphic-----------------------------------------------------------')
 # #build a simply NN/ regression NN
 # import tensorflow
 from keras.models import Sequential
@@ -85,8 +106,7 @@ model.add(Dense(100))
 model.add(Dense(50))
 model.add(Dense(1))
 model.summary()
-
-print('----Start training')
+print('------------------------------------------Start training-----------------------------------------------------------')
 model.compile(loss='mse',optimizer='adam')
 history_object = model.fit(X_train,y_train, validation_split=0.2,shuffle=True, nb_epoch =4, verbose=1)
 
