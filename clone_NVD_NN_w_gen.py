@@ -5,8 +5,8 @@ from PIL import Image, ImageDraw
 import sklearn
 from random import shuffle
 
-data_path =['../data/','../track1/','../bridge/']
-data_num_upper_index = 300  # -1 load all data;
+data_path =['../data/','../track1/','../bridge/']  #add new data path to this var
+data_num_upper_index = -1  # -1 load all data;
 
 def generator(samples, batch_size=  64):
     # print('Use generator....')
@@ -96,8 +96,9 @@ from sklearn.model_selection import train_test_split
 train_samples, validation_samples = train_test_split(lines[1:data_num_upper_index], test_size=0.2)
 
 # compile and train the model using the generator function
-train_generator = generator(train_samples, batch_size=32)
-validation_generator = generator(validation_samples, batch_size=32)
+batch_size = 128
+train_generator = generator(train_samples, batch_size)
+validation_generator = generator(validation_samples, batch_size)
 
 
 
@@ -142,8 +143,8 @@ model.compile(loss='mse',optimizer='adam')
 
 
 history_object = model.fit_generator(train_generator, samples_per_epoch=
-            len(train_samples), validation_data=validation_generator,
-            nb_val_samples=len(validation_samples), nb_epoch=3,verbose=1)
+            len(train_samples)/batch_size, validation_data=validation_generator,
+            nb_val_samples=len(validation_samples)/batch_size, nb_epoch=3,verbose=1)
 
 
 model.save('model.h5')
